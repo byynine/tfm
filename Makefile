@@ -1,11 +1,11 @@
-bld/main: src/main.c | bld
+bld/linux/main: src/linux/main.c | bld/linux
 	gcc -o $@ $<
 
-bld:
-	mkdir -p bld
+bld/linux:
+	mkdir -p bld/linux
 
-run:
-	@bld/main
+run: bld/linux/main
+	bld/linux/main
 
 clean:
-	rm -rf bld
+	rm -rf bld/
