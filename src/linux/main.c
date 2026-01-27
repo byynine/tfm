@@ -51,14 +51,50 @@ int main(void)
 
         if (c == 'q') break;
 
+        if (c == 'h')
+        {
+            char new_path[255];
+            snprintf(new_path, sizeof(new_path), "%s/..", cur_entry_name);
+
+            DIR *new_dir = opendir(new_path);
+
+            closedir(dir);
+            dir = new_dir;
+            snprintf(cur_entry_name, sizeof(cur_entry_name), "%s", new_path);
+            cur_entry_idx = 0;
+        }
         if (c == 'j') cur_entry_idx++;
         if (c == 'k') cur_entry_idx--;
+        if (c == 'l')
+        {
+            rewinddir(dir);
+            entry_idx = 0;
+            while ((entry = readdir(dir)) != NULL)
+            {
+                if (entry_idx == cur_entry_idx)
+                {
+                    char new_path[255];
+                    snprintf(new_path, sizeof(new_path), "%s/%s", cur_entry_name, entry->d_name);
+
+                    DIR *new_dir = opendir(new_path);
+                    if (new_dir)
+                    {
+                        closedir(dir);
+                        dir = new_dir;
+                        snprintf(cur_entry_name, sizeof(cur_entry_name), "%s", new_path);
+                        cur_entry_idx = 0;
+                    }
+                    break;
+                }
+                entry_idx++;
+            }
+        }
 
         tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+        closedir(dir);
     }
     
     printf("\033[H\033[J");
-    closedir(dir);
 
     return 0;
 }
