@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <dirent.h>
-#include <termios.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <termios.h>
 
 int main(void)
 {
@@ -84,6 +85,29 @@ int main(void)
                         snprintf(cur_entry_name, sizeof(cur_entry_name), "%s", new_path);
                         cur_entry_idx = 0;
                     }
+                    break;
+                }
+                entry_idx++;
+            }
+        }
+        if (c == 'o')
+        {
+            rewinddir(dir);
+            entry_idx = 0;
+
+            while ((entry = readdir(dir)) != NULL)
+            {
+                if (entry_idx == cur_entry_idx)
+                {
+                    char path[512];
+                    snprintf(path, sizeof(path), "%s/%s", cur_entry_name, entry->d_name);
+
+                    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+
+                    char cmd[600];
+                    snprintf(cmd, sizeof(cmd), "nvim '%s'", path);
+                    system(cmd);
+
                     break;
                 }
                 entry_idx++;
